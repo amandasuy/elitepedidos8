@@ -137,7 +137,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
       const { data, error } = await supabase
         .from(tableName)
         .select(`*, current_sale:${salesTableName}!${tableName}_current_sale_id_fkey(*)`)
-        .eq('is_active', true)
+        .eq('is_active', true);
 
       if (error) throw error;
       
@@ -307,7 +307,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
     }
   };
 
-            type: 'income', // ✅ CORREÇÃO: Usar 'income' para vendas
+  const deleteTable = async (tableId: string, tableName: string) => {
     if (!confirm(`Tem certeza que deseja excluir a ${tableName}?`)) return;
 
     try {
