@@ -1175,7 +1175,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
               </div>
 
               {/* Cart Section */}
-              <div className="w-1/2 p-4 flex flex-col bg-white min-h-0">
+              <div className="w-1 p-4 flex flex-col bg-white min-h-0">
                 <h4 className="text-xl font-bold text-gray-800 mb-6">Carrinho da Venda</h4>
                 
                 {/* Loading Sale Items */}
