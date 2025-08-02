@@ -56,6 +56,7 @@ const CashRegisterMenu: React.FC = () => {
   const [closedRegister, setClosedRegister] = useState<any>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [billCountingMode, setBillCountingMode] = useState<'open' | 'close' | null>(null);
+  const [justification, setJustification] = useState('');
   
   // Check Supabase configuration on mount
   React.useEffect(() => {
@@ -145,20 +146,6 @@ const CashRegisterMenu: React.FC = () => {
         
         // Sempre mostrar o diálogo de opções após fechar
         setShowCloseDialog(true);
-      } else {
-        alert(`Erro ao fechar caixa: ${result.error}`);
-      }
-    } catch (err) {
-      console.error('Erro ao fechar caixa:', err);
-      alert('Erro ao fechar caixa. Tente novamente.');
-    } finally {
-      setIsClosing(false);
-    }
-  };
-          setShowPrintView(true);
-        } else {
-          setShowCloseDialog(true);
-        }
       } else {
         alert(`Erro ao fechar caixa: ${result.error}`);
       }
