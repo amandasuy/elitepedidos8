@@ -459,8 +459,7 @@ export const usePDVCashRegister = () => {
       const { data, error } = await supabase
         .rpc('close_pdv_cash_register', {
           p_register_id: currentRegister.id,
-          p_closing_amount: closingAmount,
-          p_justification: justification
+          p_closing_amount: closingAmount
         });
       
       if (error) {
