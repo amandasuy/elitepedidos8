@@ -237,7 +237,7 @@ export const useStore2PDVCashRegister = () => {
     }
   }, [fetchCashRegisterStatus]);
 
-  const closeCashRegister = useCallback(async (closingAmount: number) => {
+  const closeCashRegister = useCallback(async (closingAmount: number, justification?: string) => {
     try {
       // Check if Supabase is configured
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -257,6 +257,9 @@ export const useStore2PDVCashRegister = () => {
       }
       
       console.log('🔒 Fechando caixa da Loja 2 com valor:', closingAmount);
+      if (justification) {
+        console.log('📝 Justificativa da Loja 2:', justification);
+      }
       
       const { data, error } = await supabase
         .from('pdv2_cash_registers')

@@ -132,7 +132,7 @@ const CashRegisterMenu: React.FC = () => {
     try {
       console.log('🔒 Fechando caixa com valor:', closingAmount);
       console.log('📊 Summary antes do fechamento:', summary);
-      const result = await closeCashRegister(closingAmount);
+      const result = await closeCashRegister(closingAmount, justification);
       
       if (result.success) {
         // Criar objeto do caixa fechado com todos os dados necessários
@@ -143,7 +143,18 @@ const CashRegisterMenu: React.FC = () => {
           difference: closingAmount - (summary?.expected_balance || 0)
         });
         
-        if (shouldPrint) {
+        // Sempre mostrar o diálogo de opções após fechar
+        setShowCloseDialog(true);
+      } else {
+        alert(`Erro ao fechar caixa: ${result.error}`);
+      }
+    } catch (err) {
+      console.error('Erro ao fechar caixa:', err);
+      alert('Erro ao fechar caixa. Tente novamente.');
+    } finally {
+      setIsClosing(false);
+    }
+  };
           setShowPrintView(true);
         } else {
           setShowCloseDialog(true);

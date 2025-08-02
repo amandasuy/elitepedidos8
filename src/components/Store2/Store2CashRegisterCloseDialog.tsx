@@ -1,26 +1,23 @@
 import React from 'react';
 import { X, Printer, CheckCircle, MessageSquare, FileText, AlertTriangle } from 'lucide-react';
 import { PDVCashRegister, PDVCashRegisterSummary } from '../../types/pdv';
-import { useNavigate } from 'react-router-dom';
 
-interface CashRegisterCloseDialogProps {
+interface Store2CashRegisterCloseDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onCloseAll?: () => void;
   register: PDVCashRegister | null;
   summary: PDVCashRegisterSummary | null;
   onPrint: () => void;
-  onViewDailyReport?: () => void;
 }
 
-const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
+const Store2CashRegisterCloseDialog: React.FC<Store2CashRegisterCloseDialogProps> = ({
   isOpen,
   onClose,
   onCloseAll,
   register,
   summary,
-  onPrint,
-  onViewDailyReport
+  onPrint
 }) => {
   // Function to handle closing all dialogs
   const handleCloseAll = () => {
@@ -50,23 +47,12 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
   const generateWhatsAppMessage = () => {
     // Check if register and summary are available
     if (!register || !summary) {
-      console.error('Dados do caixa não disponíveis para gerar mensagem', { register, summary });
-      return encodeURIComponent('Erro ao gerar relatório: Dados do caixa não disponíveis. Por favor, tente novamente.');
+      console.error('Dados do caixa da Loja 2 não disponíveis para gerar mensagem', { register, summary });
+      return encodeURIComponent('Erro ao gerar relatório da Loja 2: Dados do caixa não disponíveis. Por favor, tente novamente.');
     }
 
     try {
-      console.log('📊 Dados para WhatsApp:', { 
-        register, 
-        summary,
-        opening_amount: register.opening_amount,
-        sales_total: summary?.sales_total,
-        delivery_total: summary?.delivery_total,
-        other_income_total: summary?.other_income_total,
-        total_expense: summary?.total_expense,
-        expected_balance: summary?.expected_balance
-      });
-      
-      let message = `*RELATÓRIO DE CAIXA - ELITE AÇAÍ*\n\n`;
+      let message = `*RELATÓRIO DE CAIXA - ELITE AÇAÍ LOJA 2*\n\n`;
     
       // Dados do caixa
       message += `*DADOS DO CAIXA:*\n`;
@@ -78,7 +64,6 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
       // Resumo financeiro
       message += `*RESUMO FINANCEIRO:*\n`;
       message += `Vendas PDV: ${formatPrice(summary?.sales_total || 0)}\n`;
-      message += `Vendas Delivery: ${formatPrice(summary?.delivery_total || 0)}\n`;
       message += `Outras entradas: ${formatPrice(summary?.other_income_total || 0)}\n`;
       message += `Saídas: ${formatPrice(summary?.total_expense || 0)}\n`;
       message += `Saldo esperado: ${formatPrice(summary?.expected_balance || 0)}\n`;
@@ -92,57 +77,20 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
       }
       message += `\n\n`;
     
-      // Formas de pagamento
-      message += `*FORMAS DE PAGAMENTO:*\n`;
-      if (summary?.sales && typeof summary.sales === 'object') {
-        const paymentMethods: Record<string, number> = {};
-      
-        // Extract payment methods from sales data
-        Object.entries(summary.sales).forEach(([key, value]) => {
-          const parts = key.split('_');
-          if (parts.length >= 2) {
-            const method = parts[0];
-            const total = value?.total || 0;
-          
-            paymentMethods[method] = (paymentMethods[method] || 0) + total;
-          }
-        });
-      
-        // Add payment methods to message
-        Object.entries(paymentMethods).forEach(([method, total]) => {
-          const methodName = getPaymentMethodName(method);
-          message += `${methodName}: ${formatPrice(total)}\n`;
-        });
-      } else {
-        message += `Dinheiro: ${formatPrice(summary?.sales_total || 0)}\n`;
-      }
-    
-      message += `\n*Relatório gerado em:* ${new Date().toLocaleString('pt-BR')}`;
+      message += `*Relatório gerado em:* ${new Date().toLocaleString('pt-BR')}\n`;
+      message += `*Loja 2 - Rua Dois, 2130-A*`;
     
       return encodeURIComponent(message);
     } catch (error) {
-      console.error('Erro ao gerar mensagem de WhatsApp:', error);
-      return encodeURIComponent('Erro ao gerar relatório. Por favor, tente novamente.');
+      console.error('Erro ao gerar mensagem de WhatsApp da Loja 2:', error);
+      return encodeURIComponent('Erro ao gerar relatório da Loja 2. Por favor, tente novamente.');
     }
-  };
-
-  const getPaymentMethodName = (method: string): string => {
-    const methodNames: Record<string, string> = {
-      'dinheiro': 'Dinheiro',
-      'pix': 'PIX',
-      'cartao_credito': 'Cartão de Crédito',
-      'cartao_debito': 'Cartão de Débito',
-      'voucher': 'Voucher',
-      'misto': 'Pagamento Misto'
-    };
-    
-    return methodNames[method] || method;
   };
 
   const handleSendWhatsApp = () => {
     if (!register || !summary) {
-      alert('Erro: Dados do caixa não disponíveis. Por favor, tente novamente.');
-      console.error('Erro ao enviar WhatsApp: Dados do caixa não disponíveis', { register, summary });
+      alert('Erro: Dados do caixa da Loja 2 não disponíveis. Por favor, tente novamente.');
+      console.error('Erro ao enviar WhatsApp da Loja 2: Dados do caixa não disponíveis', { register, summary });
       return;
     }
 
@@ -159,7 +107,7 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
               <div className="bg-green-100 rounded-full p-2">
                 <CheckCircle size={24} className="text-green-600" />
               </div>
-              Caixa Fechado com Sucesso!
+              Caixa Loja 2 Fechado!
             </h2>
             <button 
               onClick={handleCloseAll}
@@ -168,7 +116,7 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
             </button>
           </div>
           <p className="text-gray-600">
-            O caixa foi fechado com um valor de {register?.closing_amount ? formatPrice(register.closing_amount) : "N/A"}
+            O caixa da Loja 2 foi fechado com um valor de {register?.closing_amount ? formatPrice(register.closing_amount) : "N/A"}
           </p>
         </div>
 
@@ -177,12 +125,12 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
             <div className="flex items-start gap-3">
               <FileText size={20} className="text-blue-600 mt-1 flex-shrink-0" />
               <div>
-                <h3 className="text-lg font-bold text-blue-800 mb-2">Opções de Relatório</h3>
+                <h3 className="text-lg font-bold text-blue-800 mb-2">Opções de Relatório - Loja 2</h3>
                 <p className="text-blue-700 mb-3">
-                  O que você gostaria de fazer com o relatório deste caixa?
+                  O que você gostaria de fazer com o relatório deste caixa da Loja 2?
                 </p>
                 <p className="text-sm text-blue-600 bg-white/70 p-3 rounded-lg border border-blue-100">
-                  O relatório mostra todas as movimentações, vendas e resumo financeiro do caixa.
+                  O relatório mostra todas as movimentações, vendas e resumo financeiro do caixa da Loja 2.
                 </p>
               </div>
             </div>
@@ -201,25 +149,9 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
               </div>
               <div className="text-left">
                 <div className="font-bold text-lg">Imprimir Movimentações</div>
-                <div className="text-blue-100 text-sm">Relatório térmico completo</div>
+                <div className="text-blue-100 text-sm">Relatório térmico da Loja 2</div>
               </div>
             </button>
-            
-            {onViewDailyReport && (
-              <button
-                onClick={onViewDailyReport}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <div className="bg-white/20 rounded-full p-2">
-                  <FileText size={20} />
-                </div>
-                <div className="text-left">
-                  <div className="font-bold text-lg">Ver Relatório Diário</div>
-                  <div className="text-purple-100 text-sm">Análise completa do dia</div>
-                </div>
-              </button>
-            )}
-
             
             <button 
               onClick={handleSendWhatsApp}
@@ -231,7 +163,7 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
               </div>
               <div className="text-left">
                 <div className="font-bold text-lg">Enviar por WhatsApp</div>
-                <div className="text-green-100 text-sm">Compartilhar relatório</div>
+                <div className="text-green-100 text-sm">Compartilhar relatório da Loja 2</div>
               </div>
             </button>
             
@@ -239,7 +171,7 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
                 <AlertTriangle size={16} className="text-yellow-600 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-yellow-700">
-                  Alguns dados do caixa não estão disponíveis para envio por WhatsApp.
+                  Alguns dados do caixa da Loja 2 não estão disponíveis para envio por WhatsApp.
                 </p>
               </div>
             )}
@@ -257,12 +189,4 @@ const CashRegisterCloseDialog: React.FC<CashRegisterCloseDialogProps> = ({
   );
 };
 
-// Helper function to format currency
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(price);
-};
-
-export default CashRegisterCloseDialog;
+export default Store2CashRegisterCloseDialog;

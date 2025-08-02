@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { PDVCashRegister, PDVCashRegisterSummary, PDVCashRegisterEntry } from '../../types/pdv';
-import { usePDVSettings } from '../../hooks/usePDVSettings';
 
-interface CashRegisterPrintViewProps {
+interface Store2CashRegisterPrintViewProps {
   register: PDVCashRegister;
   summary: PDVCashRegisterSummary;
   entries: PDVCashRegisterEntry[];
   onClose: () => void;
 }
 
-const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({ 
+const Store2CashRegisterPrintView: React.FC<Store2CashRegisterPrintViewProps> = ({ 
   register, 
   summary, 
   entries, 
   onClose 
 }) => {
-  const { settings: pdvSettings } = usePDVSettings();
   const [printerSettings, setPrinterSettings] = useState({
     paper_width: '80mm',
     font_size: 14,
@@ -23,40 +21,67 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
     auto_adjust_paper: true
   });
 
-  // Carregar configurações de impressora
+  // Carregar configurações de impressora do localStorage
   useEffect(() => {
-    if (pdvSettings) {
-      setPrinterSettings(prev => ({
-        ...prev,
-        paper_width: pdvSettings.printer_paper_width || '80mm',
-        font_size: pdvSettings.printer_font_size || 14,
-        auto_adjust_font: pdvSettings.printer_auto_adjust_font !== false,
-        auto_adjust_paper: pdvSettings.printer_auto_adjust_paper !== false
-      }));
+    const savedSettings = localStorage.getItem('store2_settings');
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings);
+        if (settings.printer) {
+          setPrinterSettings(prev => ({
+            ...prev,
+            paper_width: settings.printer.paper_width || '80mm',
+            font_size: settings.printer.font_size || 14,
+            auto_adjust_font: settings.printer.auto_adjust !== false
+          }));
+        }
+      } catch (e) {
+        console.error('Erro ao carregar configurações de impressora da Loja 2:', e);
+      }
     }
-  }, [pdvSettings]);
+  }, []);
 
-  // Calcular tamanhos responsivos baseado no papel
+  // Calcular tamanhos baseado no papel
   const getResponsiveSizes = () => {
-    let baseFontSize = printerSettings.font_size;
-    let width = printerSettings.paper_width === 'A4' ? '190mm' : (printerSettings.paper_width === '58mm' ? '54mm' : '76mm');
-    let padding = printerSettings.paper_width === 'A4' ? '5mm' : (printerSettings.paper_width === '58mm' ? '1mm' : '2mm');
-
-    if (printerSettings.auto_adjust_font) {
-      if (printerSettings.paper_width === '58mm') baseFontSize = 10;
-      else if (printerSettings.paper_width === '80mm') baseFontSize = 14;
-      else if (printerSettings.paper_width === 'A4') baseFontSize = 16;
+    if (!printerSettings.auto_adjust_font) {
+      return {
+        baseFontSize: printerSettings.font_size,
+        titleSize: printerSettings.font_size + 4,
+        smallSize: printerSettings.font_size - 2,
+        width: '76mm'
+      };
     }
 
-    return {
-      baseFontSize,
-      titleSize: baseFontSize + 4,
-      mediumSize: baseFontSize + 1,
-      largeSize: baseFontSize + 2,
-      smallSize: Math.max(8, baseFontSize - 4),
-      width,
-      padding
-    };
+    switch (printerSettings.paper_width) {
+      case '58mm':
+        return {
+          baseFontSize: 10,
+          titleSize: 14,
+          smallSize: 8,
+          width: '54mm'
+        };
+      case '80mm':
+        return {
+          baseFontSize: 14,
+          titleSize: 18,
+          smallSize: 10,
+          width: '76mm'
+        };
+      case 'A4':
+        return {
+          baseFontSize: 16,
+          titleSize: 22,
+          smallSize: 12,
+          width: '190mm'
+        };
+      default:
+        return {
+          baseFontSize: 14,
+          titleSize: 18,
+          smallSize: 10,
+          width: '76mm'
+        };
+    }
   };
 
   const sizes = getResponsiveSizes();
@@ -89,7 +114,7 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Relatório de Caixa #${register.id.slice(-8)}</title>
+        <title>Relatório de Caixa Loja 2 #${register.id.slice(-8)}</title>
         <style>
           @page {
             size: ${printerSettings.paper_width} auto;
@@ -110,7 +135,7 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
             line-height: 1.3;
             color: black;
             background: white;
-            padding: ${sizes.padding};
+            padding: 2mm;
             width: ${sizes.width};
           }
           
@@ -118,8 +143,6 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
           .bold { font-weight: bold; }
           .small { font-size: ${sizes.smallSize}px; font-weight: 600; }
           .title { font-size: ${sizes.titleSize}px; }
-          .medium { font-size: ${sizes.mediumSize}px; font-weight: 600; }
-          .large { font-size: ${sizes.largeSize}px; font-weight: 600; }
           .separator { 
             border-bottom: 1px dashed black; 
             margin: 5px 0; 
@@ -142,9 +165,9 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
       <body>
         <!-- Cabeçalho -->
         <div class="center mb-3 separator">
-          <div class="bold title" style="color: #000;">ELITE AÇAÍ</div>
+          <div class="bold title" style="color: #000;">ELITE AÇAÍ - LOJA 2</div>
           <div class="small">Relatório de Caixa</div>
-          <div class="small">Rua Um, 1614-C</div>
+          <div class="small">Rua Dois, 2130-A</div>
           <div class="small">Residencial 1 - Cágado</div>
           <div class="small">Tel: (85) 98904-1010</div>
           <div class="small">CNPJ: 38.130.139/0001-22</div>
@@ -152,54 +175,50 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
         
         <!-- Dados do Caixa -->
         <div class="mb-3 separator">
-          <div class="bold center mb-2 medium">=== RELATÓRIO DE CAIXA ===</div>
+          <div class="bold center mb-2" style="font-size: ${sizes.baseFontSize + 2}px;">=== RELATÓRIO DE CAIXA ===</div>
           <div class="small">Caixa: #${register.id.slice(-8)}</div>
-          <div class="small" style="font-weight: 600;">Abertura: ${formatDateTime(register.opened_at)}</div>
-          <div class="small" style="font-weight: 600;">Fechamento: ${register.closed_at ? formatDateTime(register.closed_at) : 'Em aberto'}</div>
-          <div class="small" style="font-weight: 600;">Valor Abertura: ${formatPrice(register.opening_amount || 0)}</div>
-          <div class="small" style="font-weight: 600;">Valor Fechamento: ${formatPrice(register.closing_amount || 0)}</div>
+          <div class="small">Abertura: ${formatDateTime(register.opened_at)}</div>
+          <div class="small">Fechamento: ${register.closed_at ? formatDateTime(register.closed_at) : 'Em aberto'}</div>
+          <div class="small">Valor Abertura: ${formatPrice(register.opening_amount || 0)}</div>
+          <div class="small">Valor Fechamento: ${formatPrice(register.closing_amount || 0)}</div>
         </div>
         
         <!-- Resumo Financeiro -->
         <div class="mb-3 separator">
-          <div class="bold mb-1 medium">RESUMO FINANCEIRO:</div>
+          <div class="bold mb-1" style="font-size: ${sizes.baseFontSize + 1}px;">RESUMO FINANCEIRO:</div>
           <div class="flex-between">
-            <span class="small" style="font-weight: 600;">Vendas PDV:</span>
-            <span class="small" style="font-weight: 600;">${formatPrice(summary.sales_total || 0)}</span>
+            <span class="small">Vendas PDV:</span>
+            <span class="small">${formatPrice(summary.sales_total || 0)}</span>
           </div>
           <div class="flex-between">
-            <span class="small" style="font-weight: 600;">Vendas Delivery:</span>
-            <span class="small" style="font-weight: 600;">${formatPrice(summary.delivery_total || 0)}</span>
+            <span class="small">Outras Entradas:</span>
+            <span class="small">${formatPrice(summary.other_income_total || 0)}</span>
           </div>
           <div class="flex-between">
-            <span class="small" style="font-weight: 600;">Outras Entradas:</span>
-            <span class="small" style="font-weight: 600;">${formatPrice(summary.other_income_total || 0)}</span>
-          </div>
-          <div class="flex-between">
-            <span class="small" style="font-weight: 600;">Saídas:</span>
-            <span class="small" style="font-weight: 600;">${formatPrice(summary.total_expense || 0)}</span>
+            <span class="small">Saídas:</span>
+            <span class="small">${formatPrice(summary.total_expense || 0)}</span>
           </div>
           <div style="border-top: 1px solid black; padding-top: 3px; margin-top: 3px;">
             <div class="flex-between bold">
-              <span class="large">Saldo Esperado:</span>
-              <span class="large">${formatPrice(summary.expected_balance || 0)}</span>
+              <span style="font-size: ${sizes.baseFontSize + 2}px;">Saldo Esperado:</span>
+              <span style="font-size: ${sizes.baseFontSize + 2}px;">${formatPrice(summary.expected_balance || 0)}</span>
             </div>
           </div>
           <div class="flex-between">
-            <span class="small" style="font-weight: 600;">Diferença:</span>
-            <span class="small" style="font-weight: 600;">${formatPrice(register.difference || 0)}</span>
+            <span class="small">Diferença:</span>
+            <span class="small">${formatPrice(register.difference || 0)}</span>
           </div>
         </div>
         
         <!-- Movimentações -->
         <div class="mb-3 separator">
-          <div class="bold mb-1 medium">MOVIMENTAÇÕES:</div>
+          <div class="bold mb-1" style="font-size: ${sizes.baseFontSize + 1}px;">MOVIMENTAÇÕES:</div>
           ${entries.map((entry, index) => `
             <div class="mb-2">
-              <div class="small" style="font-weight: 600;">${formatDateTime(entry.created_at)}</div>
+              <div class="small">${formatDateTime(entry.created_at)}</div>
               <div class="flex-between">
                 <span class="small">${entry.type === 'income' ? 'ENTRADA' : 'SAÍDA'}: ${entry.description}</span>
-                <span class="small" style="font-weight: 600;">${entry.type === 'income' ? '+' : '-'}${formatPrice(entry.amount)}</span>
+                <span class="small">${entry.type === 'income' ? '+' : '-'}${formatPrice(entry.amount)}</span>
               </div>
               <div class="small">Forma: ${getPaymentMethodName(entry.payment_method)}</div>
             </div>
@@ -209,7 +228,8 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
         
         <!-- Rodapé -->
         <div class="center small" style="border-top: 1px solid black; padding-top: 5px;">
-          <div class="bold mb-2" style="font-size: ${sizes.baseFontSize}px;">Elite Açaí - Relatório de Caixa</div>
+          <div class="bold mb-2" style="font-size: ${sizes.baseFontSize}px;">Elite Açaí - Loja 2</div>
+          <div>Relatório de Caixa</div>
           <div>Impresso: ${new Date().toLocaleString('pt-BR')}</div>
           <div>Este não é um documento fiscal</div>
         </div>
@@ -247,7 +267,7 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
           {/* Controls */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-800">Imprimindo Relatório de Caixa</h2>
+              <h2 className="text-lg font-semibold text-gray-800">Imprimindo Relatório - Loja 2</h2>
               <div className="flex gap-2">
                 <button
                   onClick={handlePrint}
@@ -269,9 +289,9 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
           <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-4">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 font-mono text-sm">
               <div className="text-center mb-4">
-                <p className="font-bold text-lg">ELITE AÇAÍ</p>
+                <p className="font-bold text-lg">ELITE AÇAÍ - LOJA 2</p>
                 <p className="text-sm">Relatório de Caixa</p>
-                <p className="text-xs">Rua Um, 1614-C</p>
+                <p className="text-xs">Rua Dois, 2130-A</p>
                 <p className="text-xs">Residencial 1 - Cágado</p>
                 <p className="text-xs">Tel: (85) 98904-1010</p>
                 <p className="text-xs">CNPJ: 38.130.139/0001-22</p>
@@ -291,7 +311,6 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
               <div className="mb-3">
                 <p className="text-xs font-bold">RESUMO FINANCEIRO:</p>
                 <p className="text-xs">Vendas PDV: {formatPrice(summary.sales_total || 0)}</p>
-                <p className="text-xs">Vendas Delivery: {formatPrice(summary.delivery_total || 0)}</p>
                 <p className="text-xs">Outras Entradas: {formatPrice(summary.other_income_total || 0)}</p>
                 <p className="text-xs">Saídas: {formatPrice(summary.total_expense || 0)}</p>
                 <p className="text-xs font-bold">Saldo Esperado: {formatPrice(summary.expected_balance || 0)}</p>
@@ -318,7 +337,8 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
               </div>
               
               <div className="text-center text-xs">
-                <p className="font-bold">Elite Açaí - Relatório de Caixa</p>
+                <p className="font-bold">Elite Açaí - Loja 2</p>
+                <p>Relatório de Caixa</p>
                 <p>Impresso: {new Date().toLocaleString('pt-BR')}</p>
                 <p>Este não é um documento fiscal</p>
               </div>
@@ -330,4 +350,4 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
   );
 };
 
-export default CashRegisterPrintView;
+export default Store2CashRegisterPrintView;

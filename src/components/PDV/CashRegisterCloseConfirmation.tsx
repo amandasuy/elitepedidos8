@@ -85,7 +85,7 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
       '0.50': 0,
       '0.25': 0,
       '0.10': 0,
-      '0.05': 0,
+      const result = await closeCashRegister(closingAmount, justification);
       '0.01': 0
     });
   };
@@ -96,7 +96,7 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
     setShowBillCounting(false);
     resetBillCounts();
   };
-
+        if (printMovements) {
   if (!isOpen) return null;
 
   const formatPrice = (price: number) => {
@@ -360,7 +360,7 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
                     ) : (
                       <>
                         <CheckCircle size={20} />
-                        Confirmar Fechamento
+                        {printMovements ? 'Fechar e Imprimir' : 'Confirmar Fechamento'}
                       </>
                     )}
                   </button>

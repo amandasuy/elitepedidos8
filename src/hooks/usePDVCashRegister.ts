@@ -419,10 +419,13 @@ export const usePDVCashRegister = () => {
     }
   }, [fetchCashRegisterStatus]);
 
-  const closeCashRegister = useCallback(async (closingAmount: number) => {
+  const closeCashRegister = useCallback(async (closingAmount: number, justification?: string) => {
     console.log('🔒 Iniciando fechamento de caixa com valor:', closingAmount);
     console.log('💰 Saldo esperado:', summary.expected_balance);
     console.log('🧮 Diferença calculada:', closingAmount - summary.expected_balance);
+    if (justification) {
+      console.log('📝 Justificativa:', justification);
+    }
     console.log('📊 Summary completo antes do fechamento:', {
       opening_amount: summary.opening_amount,
       sales_total: summary.sales_total,
@@ -456,7 +459,8 @@ export const usePDVCashRegister = () => {
       const { data, error } = await supabase
         .rpc('close_pdv_cash_register', {
           p_register_id: currentRegister.id,
-          p_closing_amount: closingAmount
+          p_closing_amount: closingAmount,
+          p_justification: justification
         });
       
       if (error) {
