@@ -137,7 +137,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
       const { data, error } = await supabase
         .from(tableName)
         .select(`*, current_sale:${salesTableName}!${tableName}_current_sale_id_fkey(*)`)
-        .eq('is_active', true);
+        .eq('is_active', true)
 
       if (error) throw error;
       
@@ -566,7 +566,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
       // Adicionar ao caixa
       if (addCashEntry) {
         await addCashEntry({
-          type: 'entrada',
+          type: 'income',
           amount: currentSale.total_amount,
           description: `Venda Mesa ${selectedTable.number} - ${currentSale.sale_number}`,
           payment_method: paymentMethod,
