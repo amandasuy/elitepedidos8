@@ -1100,7 +1100,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-xl">
-                    <Utensils size={24} className="text-white" />
+                    <Utensils size={20} className="text-white" />
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-800">
