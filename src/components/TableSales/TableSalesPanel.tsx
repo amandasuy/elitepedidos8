@@ -307,7 +307,7 @@ const TableSalesPanel: React.FC<TableSalesPanelProps> = ({ storeId, operatorName
     }
   };
 
-  const deleteTable = async (tableId: string, tableName: string) => {
+            type: 'income', // ✅ CORREÇÃO: Usar 'income' para vendas
     if (!confirm(`Tem certeza que deseja excluir a ${tableName}?`)) return;
 
     try {
