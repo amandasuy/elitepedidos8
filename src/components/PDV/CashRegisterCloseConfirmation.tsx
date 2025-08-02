@@ -85,7 +85,7 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
       '0.50': 0,
       '0.25': 0,
       '0.10': 0,
-      const result = await closeCashRegister(closingAmount, justification);
+      '0.05': 0,
       '0.01': 0
     });
   };
@@ -96,7 +96,7 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
     setShowBillCounting(false);
     resetBillCounts();
   };
-        if (printMovements) {
+
   if (!isOpen) return null;
 
   const formatPrice = (price: number) => {
@@ -263,9 +263,9 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
                     difference > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'
                   }`}>
                     <div className="flex items-start gap-3">
-                      <AlertTriangle size={20} className={
+                      <AlertTriangle size={20} className={`mt-1 flex-shrink-0 ${
                         difference > 0 ? 'text-yellow-600' : 'text-red-600'
-                      } className="mt-1 flex-shrink-0" />
+                      }`} />
                       <div className="w-full">
                         <h4 className={`font-medium mb-2 ${
                           difference > 0 ? 'text-yellow-800' : 'text-red-800'
@@ -360,7 +360,7 @@ const CashRegisterCloseConfirmation: React.FC<CashRegisterCloseConfirmationProps
                     ) : (
                       <>
                         <CheckCircle size={20} />
-                        {printMovements ? 'Fechar e Imprimir' : 'Confirmar Fechamento'}
+                        Confirmar Fechamento
                       </>
                     )}
                   </button>
